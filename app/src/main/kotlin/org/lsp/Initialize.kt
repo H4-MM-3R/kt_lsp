@@ -4,41 +4,37 @@ class InitializeRequest(
    override val jsonrpc: String,
    override val id: Any,
    override val method: String,
-   var params: InitializeRequestParams
+   val params: InitializeRequestParams
 ) : RequestMessage
 
 class InitializeRequestParams(
-    var clientInfo: ClientInfo,
+    val clientInfo: ClientInfo,
 )
 
 class ClientInfo(
-    var name: String,
-    var version: String,
+    val name: String,
+    val version: String,
 )
 
 class InitializeResponse(
     override val jsonrpc: String,
     override val id: Any,
-    var result: InitializeResult
+    val result: InitializeResult
 ) : ResponseMessage
 
 class InitializeResult(
-    var capabilities: ServerCapabilities,
-    var serverInfo: ServerInfo
+    val capabilities: ServerCapabilities,
+    val serverInfo: ServerInfo
 )
 
 class ServerCapabilities(
-    var textDocumentSync: TextDocumentSyncOptions = TextDocumentSyncOptions()
-)
-
-class TextDocumentSyncOptions(
-    var openClose: Boolean = true,
-    var change: Int = 1  // 1 = Full sync mode
+    val textDocumentSync: Int = 1,
+    val hoverProvider: Boolean = true,
 )
 
 class ServerInfo(
-    var name: String,
-    var version: String
+    val name: String,
+    val version: String
 )
 
 fun newInitializeResponse(id: Any) : InitializeResponse {
@@ -46,7 +42,10 @@ fun newInitializeResponse(id: Any) : InitializeResponse {
         jsonrpc = "2.0",
         id = id,
         result = InitializeResult(
-            capabilities = ServerCapabilities(),
+            capabilities = ServerCapabilities(
+                textDocumentSync = 1,
+                hoverProvider = true
+            ),
             serverInfo = ServerInfo(
                 name = "kt_lsp",
                 version = "0.1.0"

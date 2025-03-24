@@ -7,15 +7,19 @@ import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import org.analysis.State
 import org.lsp.InitializeRequest
 import org.lsp.newInitializeResponse
+import org.lsp.textdocument.DidChangeTextDocumentNotification
+import org.lsp.textdocument.DidOpenTextDocumentNotification
+import org.lsp.textdocument.HoverRequest
+import org.lsp.textdocument.HoverResponse
+import org.lsp.textdocument.HoverResult
 import org.rpc.Rpc
 
 fun main() {
     val logger = getLogger("/home/hemram/lsptester/log.txt")
-    val timeStamp =
-            "[${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))}]\t"
-
+    var state = State()
     try {
         val inputStream = System.`in`
         val outputStream = System.`out`
@@ -32,7 +36,7 @@ fun main() {
                 if (advance == 0) break
                 val (method, content) = Rpc().decodeMessage(message)
 
-                handleMessage(logger, method, content, outputStream)
+                handleMessage(logger, method, content, outputStream, state)
 
                 readBuffer = readBuffer.copyOfRange(advance, readBuffer.size)
                 logger.flush()
@@ -47,7 +51,8 @@ fun handleMessage(
         logger: PrintWriter,
         method: String,
         content: ByteArray,
-        outputStream: OutputStream
+        outputStream: OutputStream,
+        state: State
 ) {
     val timeStamp =
             "[${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))}]\t"
@@ -71,6 +76,47 @@ fun handleMessage(
             }
 
             logger.println("$timeStamp Sent response")
+        }
+        "textDocument/didOpen" -> {
+            var req =
+                    Gson().fromJson(
+                                    content.toString(StandardCharsets.UTF_8),
+                                    DidOpenTextDocumentNotification::class.java
+                            )
+            var textDocument = req.params.textDocument
+            logger.println("$timeStamp Opened: ${textDocument.uri}")
+            state.documents[textDocument.uri] = textDocument.text
+        }
+        "textDocument/didChange" -> {
+            var req =
+                    Gson().fromJson(
+                                    content.toString(StandardCharsets.UTF_8),
+                                    DidChangeTextDocumentNotification::class.java
+                            )
+            var params = req.params
+            logger.println("$timeStamp Changed: ${params.textDocument.uri}")
+            for ((_, change) in params.contentChanges.withIndex()) {
+                state.documents[params.textDocument.uri] = change.text
+            }
+        }
+        "textDocument/hover" -> {
+            var req =
+                    Gson().fromJson(
+                                    content.toString(StandardCharsets.UTF_8),
+                                    HoverRequest::class.java
+                            )
+            logger.println("$timeStamp Hover: ${req.params.textDocument.uri}")
+            val doc = state.documents[req.params.textDocument.uri]
+            var resp = HoverResponse(
+                jsonrpc = req.jsonrpc,
+                id = req.id,
+                result = HoverResult("File: ${req.params.textDocument.uri}, Characters: ${doc?.length ?: 0}")
+            )
+
+            synchronized(outputStream) {
+                outputStream.write(Rpc().encodeMessage(resp).toByteArray())
+                outputStream.flush()
+            }
         }
     }
 }
