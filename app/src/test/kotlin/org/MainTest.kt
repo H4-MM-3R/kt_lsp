@@ -3,14 +3,10 @@
  */
 package org
 
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertNotNull
-
 class MainTest {
-    // @Test
-    // fun appHasAGreeting() {
-    //     val classUnderTest = Main()
-    //     assertNotNull(classUnderTest.greeting, "app should have a greeting")
-    // }
+  // @Test
+  // fun appHasAGreeting() {
+  //     val classUnderTest = Main()
+  //     assertNotNull(classUnderTest.greeting, "app should have a greeting")
+  // }
 }
-

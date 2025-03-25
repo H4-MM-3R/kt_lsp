@@ -1,24 +1,24 @@
 package org.lsp
 
 interface Message {
-    val jsonrpc: String
+  val jsonrpc: String
 }
 
-interface RequestMessage : Message{
-    val id: Any
-    val method: String
+interface RequestMessage : Message {
+  val id: Any
+  val method: String
 
-    // params...
+  // params...
 }
 
 interface ResponseMessage : Message {
-    val id: Any
+  val id: Any
 
-    // Result or Error
+  // Result or Error
 }
 
-interface NotificationMessage : Message{
-    val method: String
+interface NotificationMessage : Message {
+  val method: String
 
-    // params...
+  // params...
 }

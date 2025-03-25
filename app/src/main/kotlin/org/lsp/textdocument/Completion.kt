@@ -6,24 +6,22 @@ import org.lsp.ResponseMessage
 import org.lsp.TextDocumentIdentifier
 import org.lsp.TextDocumentPositionParams
 
-class HoverRequest(
+class CompletionRequest(
     override val id: Any,
     override val method: String,
     override val jsonrpc: String,
-    val params: HoverParams,
+    val params: CompletionParams
 ) : RequestMessage
 
-class HoverParams(
+class CompletionParams(
     override val textDocument: TextDocumentIdentifier,
-    override val position: Position,
+    override val position: Position
 ) : TextDocumentPositionParams
 
-class HoverResponse(
+class CompletionResponse(
     override val id: Any,
     override val jsonrpc: String,
-    val result: HoverResult,
+    val result: List<CompletionItem>
 ) : ResponseMessage
 
-class HoverResult(
-    val contents: String,
-)
+class CompletionItem(val label: String, val detail: String, val documentation: String)

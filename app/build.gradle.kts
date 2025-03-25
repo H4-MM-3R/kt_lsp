@@ -7,43 +7,49 @@
  */
 
 plugins {
-    // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    alias(libs.plugins.kotlin.jvm)
+  // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
+  alias(libs.plugins.kotlin.jvm)
+  id("com.ncorti.ktfmt.gradle") version "0.22.0"
 
-    // Apply the application plugin to add support for building a CLI application in Java.
-    application
+  // Apply the application plugin to add support for building a CLI application in Java.
+  application
+}
+
+tasks.named("check") {
+  setDependsOn(dependsOn.filterNot { it is TaskProvider<*> && it.name == "ktfmtCheck" })
+}
+
+tasks.named("test") {
+  setDependsOn(dependsOn.filterNot { it is TaskProvider<*> && it.name == "ktfmtCheck" })
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
+  // Use Maven Central for resolving dependencies.
+  mavenCentral()
 }
 
 dependencies {
-    // This dependency is used by the application.
-    implementation(libs.guava)
-    implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.20.0")
-    implementation("com.google.code.gson:gson:2.10.1") 
+  // This dependency is used by the application.
+  implementation(libs.guava)
+  implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.20.0")
+  implementation("com.google.code.gson:gson:2.10.1")
 }
 
 testing {
-    suites {
-        // Configure the built-in test suite
-        val test by getting(JvmTestSuite::class) {
-            // Use JUnit Jupiter test framework
-            useJUnitJupiter("5.11.3")
+  suites {
+    // Configure the built-in test suite
+    val test by
+        getting(JvmTestSuite::class) {
+          // Use JUnit Jupiter test framework
+          useJUnitJupiter("5.11.3")
         }
-    }
+  }
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
 application {
-    // Define the main class for the application.
-    mainClass = "org.MainKt"
+  // Define the main class for the application.
+  mainClass = "org.MainKt"
 }

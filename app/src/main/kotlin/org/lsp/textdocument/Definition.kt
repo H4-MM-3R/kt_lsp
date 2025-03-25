@@ -1,29 +1,26 @@
 package org.lsp.textdocument
 
+import org.lsp.Location
 import org.lsp.Position
 import org.lsp.RequestMessage
 import org.lsp.ResponseMessage
 import org.lsp.TextDocumentIdentifier
 import org.lsp.TextDocumentPositionParams
 
-class HoverRequest(
+class DefinitionRequest(
     override val id: Any,
     override val method: String,
     override val jsonrpc: String,
-    val params: HoverParams,
+    val params: DefinitionParams,
 ) : RequestMessage
 
-class HoverParams(
+class DefinitionParams(
     override val textDocument: TextDocumentIdentifier,
     override val position: Position,
 ) : TextDocumentPositionParams
 
-class HoverResponse(
+class DefinitionResponse(
     override val id: Any,
     override val jsonrpc: String,
-    val result: HoverResult,
+    val result: Location,
 ) : ResponseMessage
-
-class HoverResult(
-    val contents: String,
-)
